@@ -1,13 +1,13 @@
 import express from 'express'
 import mongoose from 'mongoose';
-import 'dotenv/config'
+import dotenv from 'dotenv';
 import users from './user.js';
 
 
+dotenv.config();
+
 // Importing necessary modules
 const app = express();
-const PORT = process.env.PORT || 3000;
-
 
 app.use(express.json());
 app.use('/users', users);
@@ -31,3 +31,5 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`)
 });
+
+export default app;
