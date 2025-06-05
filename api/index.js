@@ -1,20 +1,32 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import userRoutes from './user.js';
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import userRoute from "./user.js";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use('/users', userRoutes);
+app.use("/users", userRoute);
 
-mongoose.connect(process.env.MONGODB_URL)
-  .then(() => console.log('MongoDB connected!'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+let isConnected = false;
+async function connectDB() {
+  if (isConnected) return;
+  try {
+    await mongoose.connect(process.env.MONGODB_URL);
+    isConnected = true;
+    console.log("MongoDB connected!");
+  } catch (err) {
+    console.error("MongoDB connection error:", err);
+  }
+}
 
-app.get('/', (req, res) => {
-  res.send('Hello from Vercel Serverless!');
+// Immediately connect to DB when function cold-starts
+await connectDB();
+
+app.get("/", (req, res) => {
+  res.send("Hello from Vercel Serverless!");
 });
 
-export default app; // Important for Vercel to pick up the serverless function
+// Export Express app as default
+export default app;
