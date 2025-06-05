@@ -1,7 +1,7 @@
 import express from 'express'
 import mongoose from 'mongoose';
 import 'dotenv/config'
-import users from './route/user.js';
+import users from './user.js';
 
 
 // Importing necessary modules
