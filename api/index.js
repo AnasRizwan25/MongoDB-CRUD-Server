@@ -9,25 +9,17 @@ const app = express();
 app.use(express.json());
 app.use('/users', userRoutes);
 
-// Connect to MongoDB (only connect once)
 let isConnected = false;
-
-async function connectToMongo() {
+async function connectDB() {
   if (isConnected) return;
-  try {
-    await mongoose.connect(process.env.MONGODB_URL);
-    console.log("MongoDB connected!");
-    isConnected = true;
-  } catch (err) {
-    console.error("MongoDB connection error:", err);
-  }
+  await mongoose.connect(process.env.MONGODB_URL);
+  isConnected = true;
 }
 
-await connectToMongo();
+await connectDB();
 
 app.get('/', (req, res) => {
-  res.send('Hello from Vercel Serverless Function!');
+  res.send('Hello from Vercel Serverless!');
 });
 
-// Export the handler for Vercel
-export default app;
+export default app; // ✅ Required for Vercel
