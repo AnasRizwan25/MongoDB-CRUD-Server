@@ -1,140 +1,107 @@
-import express from 'express';
+import express from "express";
 import User from "../models/user.js";
 
+const userRoute = express.Router();
 
-let UserRoute = express.Router()
-
-UserRoute.get('/', async(req, res) => { // all users
-
-    try {
-        let users = await User.find();
-        res.status(200).json({
-            error: false,
-            message: ' users data fetched!',
-            data: users
-        })
-
-    } catch (error) {
-        console.log(error)
-        res.status(201).json({
-            error: true,
-            message: 'error in users data fetching!',
-            data: null
-        })
-    }
-
+userRoute.get("/", async (req, res) => {
+  try {
+    const users = await User.find();
     res.status(200).json({
-        error: false,
-        message: 'users data successfully fetch!',
-        data: filterData
-    })
-
-})
-
-// params
-UserRoute.get('/:id', async (req, res) => {
-    try {
-        let { id } = req.params;
-        let findUser = await User.findById(id);
-        if (findUser) {
-            res.status(200).json({
-                error: false,
-                message: 'user found!',
-                data: findUser
-            })
-        }
-        /// if user not found
-        res.status(404).json({
-            error: false,
-            message: 'user not found!',
-            data: null,
-        })
-
-    } catch (error) {
-        console.log(error)
-         res.status(201).json({
-            error: false,
-            message: 'something went wrong!',
-            data: null,
-        })
-    }
-})
-
-// Add user
-UserRoute.post('/', async (req, res) => {
-    try {
-        let data = req.body;
-        let newUser = new User({ ...data });
-        newUser = await newUser.save(); // Save to MongoDB
-
-        res.status(200).json({
-            error: false,
-            message: 'User successfully added!',
-            data: newUser,
-        });
-    } catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({  // <-- Fixed status code
-            error: true,
-            message: error.message || "Internal Server Error",
-            data: null,
-        });
-    }
+      error: false,
+      data: users,
+    });
+  } catch (error) {
+    res.status(200).json({
+      error: true,
+      data: error.message,
+    });
+  }
 });
 
-// delete user
-UserRoute.delete('/:id', async (req, res) => {
+userRoute.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
+    const user = await User.findById(id);
 
-    const deletedUser = await User.findByIdAndDelete(id);
-
-    if (!deletedUser) {
+    if (user) {
+      return res.status(200).json({
+        error: false,
+        message: "User found",
+        data: user,
+      });
+    } else {
       return res.status(404).json({
         error: true,
-        message: 'User not found',
+        message: "User not found",
         data: null,
       });
     }
-
-    res.status(200).json({
-      error: false,
-      message: 'User successfully deleted!',
-      data: deletedUser,
-    });
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: true,
-      message: 'Internal Server Error',
+      message: "Server error",
       data: null,
     });
   }
 });
 
-// updates user
-UserRoute.put('/:id', async(req,res)=>{
-    try {
-        let { id } = req.params;
-        let updatedData = req.body;
-        let updateUser = await User.findByIdAndUpdate(id, {
-            ...updatedData
-        })
-        res.status(200).json({
-            error: false,
-            message: 'successfully updated!',
-            data: updateUser,
-        })
-    } catch (error) {
-        console.log("Error:", error);
-        res.status(201).json({
-            error: true,
-            message: error,
-            data: null,
-        })
-    }
-})
 
+userRoute.post("/", async (req, res) => {
+  try {
+    let data = req.body;
+    let newUser = new User({ ...data });
+    newUser = await newUser.save();
+    res.status(200).json({
+      error: false,
+      message: "User created successfully",
+      data: newUser,
+    });
+  } catch (error) {
+    res.status(201).json({
+      error: true,
+      message: error.message,
+      data: null,
+    });
+  }
+});
 
+userRoute.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findByIdAndDelete(id);
+    res.status(200).json({
+      error: false,
+      message: "User deleted successfully",
+      data: null,
+    });
+  } catch (error) {
+    res.status(404).json({
+      error: true,
+      message: "User not found",
+      data: null,
+    });
+  }
+});
 
-export default UserRoute;
+userRoute.put("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedData = req.body;
+    const user = await User.findByIdAndUpdate(id, {
+      ...updatedData,
+    });
+    res.status(200).json({
+      error: false,
+      message: "User updated successfully",
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: true,
+      message: error.message,
+      data: null,
+    });
+  }
+});
+
+export default userRoute;

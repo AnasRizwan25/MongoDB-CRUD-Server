@@ -1,24 +1,32 @@
-// api/index.js
-import express from 'express';
-import mongoose from 'mongoose';
-import UserRoute from './users.js';
-import dotenv from 'dotenv';
-
-
-// Load environment variables from .env file
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import userRoute from "./user.js";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use('/users', UserRoute);
+app.use("/users", userRoute);
 
-mongoose.connect(process.env.MONGODB_URL)
-  .then(() => console.log('MongoDB connected!'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+let isConnected = false;
+async function connectDB() {
+  if (isConnected) return;
+  try {
+    await mongoose.connect(process.env.MONGODB_URL);
+    isConnected = true;
+    console.log("MongoDB connected!");
+  } catch (err) {
+    console.error("MongoDB connection error:", err);
+  }
+}
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the User API!');
+// Immediately connect to DB when function cold-starts
+await connectDB();
+
+app.get("/", (req, res) => {
+  res.send("Hello from Express!");
 });
 
+// Export Express app as default
 export default app;
