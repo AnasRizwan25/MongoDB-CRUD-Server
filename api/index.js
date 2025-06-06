@@ -1,32 +1,24 @@
-import express from "express";
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-import userRoute from "./user.js";
+// api/index.js
+import express from 'express';
+import mongoose from 'mongoose';
+import UserRoute from './users.js';
+import dotenv from 'dotenv';
+
+
+// Load environment variables from .env file
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use("/users", userRoute);
+app.use('/users', UserRoute);
 
-let isConnected = false;
-async function connectDB() {
-  if (isConnected) return;
-  try {
-    await mongoose.connect(process.env.MONGODB_URL);
-    isConnected = true;
-    console.log("MongoDB connected!");
-  } catch (err) {
-    console.error("MongoDB connection error:", err);
-  }
-}
+mongoose.connect(process.env.MONGODB_URL)
+  .then(() => console.log('MongoDB connected!'))
+  .catch((err) => console.error('MongoDB connection error:', err));
 
-// Immediately connect to DB when function cold-starts
-await connectDB();
-
-app.get("/", (req, res) => {
-  res.send("Hello from Vercel Serverless!");
+app.get('/', (req, res) => {
+  res.send('API is running');
 });
 
-// Export Express app as default
 export default app;
